@@ -93,7 +93,7 @@ class DNSHandler():
             d = DNSRecord.parse(data)
 
         except Exception:
-            log.error(f"{self.client_address[0]}: ERROR: invalid DNS request")
+            log.error("{self.client_address[0]}: ERROR: invalid DNS request")
 
         else:
             # Only Process DNS Queries
@@ -124,7 +124,7 @@ class DNSHandler():
                     # Create a custom response to the query
                     response = DNSRecord(DNSHeader(id=d.header.id, bitmap=d.header.bitmap, qr=1, aa=1, ra=1), q=d.q)
 
-                    log.info(f"{self.client_address[0]}: cooking the response of type '{qtype}' for {qname} to {fake_record}")
+                    log.info("{self.client_address[0]}: cooking the response of type '{qtype}' for {qname} to {fake_record}")
 
                     # IPv6 needs additional work before inclusion:
                     if qtype == "AAAA":
@@ -191,7 +191,7 @@ class DNSHandler():
                     response = response.pack()
 
                 elif qtype == "*" and not None in list(fake_records.values()):
-                    log.info(f"{self.client_address[0]}: cooking the response of type 'ANY' for {qname} with all known fake records")
+                    log.info("{self.client_address[0]}: cooking the response of type 'ANY' for {qname} with all known fake records")
 
                     response = DNSRecord(DNSHeader(id=d.header.id, bitmap=d.header.bitmap,qr=1, aa=1, ra=1), q=d.q)
 
@@ -264,7 +264,7 @@ class DNSHandler():
 
                 # Proxy the request
                 else:
-                    log.info(f"{self.client_address[0]}: proxying the response of type '{qtype}' for {qname}")
+                    log.info("{self.client_address[0]}: proxying the response of type '{qtype}' for {qname}")
 
                     nameserver_tuple = random.choice(self.server.nameservers).split('#')
                     response = self.proxyrequest(data, *nameserver_tuple)
@@ -344,7 +344,7 @@ class DNSHandler():
                 sock.close()
 
         except Exception as e:
-            log.error(f"[!] Could not proxy request: {e}")
+            log.error("[!] Could not proxy request: {e}")
         else:
             return reply
 
@@ -437,7 +437,7 @@ def start_cooking(interface, nametodns, nameservers, tcp=False, ipv6=False, port
         sys.exit()
 
     except Exception as e:
-        log.error(f"Failed to start the server: {e}")
+        log.error("Failed to start the server: {e}")
 
 
 if __name__ == "__main__":
@@ -492,7 +492,7 @@ if __name__ == "__main__":
 
     # Notify user about alternative listening port
     if options.port != "53":
-        log.info(f"Listening on an alternative port {options.port}")
+        log.info("Listening on an alternative port {options.port}")
 
     # Adjust defaults for IPv6
     if options.ipv6:
@@ -503,12 +503,12 @@ if __name__ == "__main__":
         if options.nameservers == "8.8.8.8":
             options.nameservers = "2001:4860:4860::8888"
 
-    log.info(f"DNSChef started on interface: {options.interface}")
+    log.info("DNSChef started on interface: {options.interface}")
 
     # Use alternative DNS servers
     if options.nameservers:
         nameservers = options.nameservers.split(',')
-        log.info(f"Using the following nameservers: {', '.join(nameservers)}")
+        log.info("Using the following nameservers: {', '.join(nameservers)}")
 
     # External file definitions
     if options.file:
@@ -523,9 +523,9 @@ if __name__ == "__main__":
                     domain = domain.lower()
 
                     nametodns[section][domain] = record
-                    log.info(f"Cooking {section} replies for domain {domain} with '{record}'")
+                    log.info("Cooking {section} replies for domain {domain} with '{record}'")
             else:
-                log.warning(f"DNS Record '{section}' is not supported. Ignoring section contents.")
+                log.warning("DNS Record '{section}' is not supported. Ignoring section contents.")
 
     # DNS Record and Domain Name definitions
     # NOTE: '*.*.*.*.*.*.*.*.*.*' domain is used to match all possible queries.
@@ -545,23 +545,23 @@ if __name__ == "__main__":
 
                 if fakeip:
                     nametodns["A"][domain] = fakeip
-                    log.info(f"Cooking A replies to point to {options.fakeip} matching: {domain}")
+                    log.info("Cooking A replies to point to {options.fakeip} matching: {domain}")
 
                 if fakeipv6:
                     nametodns["AAAA"][domain] = fakeipv6
-                    log.info(f"Cooking AAAA replies to point to {options.fakeipv6} matching: {domain}")
+                    log.info("Cooking AAAA replies to point to {options.fakeipv6} matching: {domain}")
 
                 if fakemail:
                     nametodns["MX"][domain] = fakemail
-                    log.info(f"Cooking MX replies to point to {options.fakemail} matching: {domain}")
+                    log.info("Cooking MX replies to point to {options.fakemail} matching: {domain}")
 
                 if fakealias:
                     nametodns["CNAME"][domain] = fakealias
-                    log.info(f"Cooking CNAME replies to point to {options.fakealias} matching: {domain}")
+                    log.info("Cooking CNAME replies to point to {options.fakealias} matching: {domain}")
 
                 if fakens:
                     nametodns["NS"][domain] = fakens
-                    log.info(f"Cooking NS replies to point to {options.fakens} matching: {domain}")
+                    log.info("Cooking NS replies to point to {options.fakens} matching: {domain}")
 
         elif options.truedomains:
             for domain in options.truedomains.split(','):
@@ -572,27 +572,27 @@ if __name__ == "__main__":
 
                 if fakeip:
                     nametodns["A"][domain] = False
-                    log.info(f"Cooking A replies to point to {options.fakeip} not matching: {domain}")
+                    log.info("Cooking A replies to point to {options.fakeip} not matching: {domain}")
                     nametodns["A"]['*.*.*.*.*.*.*.*.*.*'] = fakeip
 
                 if fakeipv6:
                     nametodns["AAAA"][domain] = False
-                    log.info(f"Cooking AAAA replies to point to {options.fakeipv6} not matching: {domain}")
+                    log.info("Cooking AAAA replies to point to {options.fakeipv6} not matching: {domain}")
                     nametodns["AAAA"]['*.*.*.*.*.*.*.*.*.*'] = fakeipv6
 
                 if fakemail:
                     nametodns["MX"][domain] = False
-                    log.info(f"Cooking MX replies to point to {options.fakemail} not matching: {domain}")
+                    log.info("Cooking MX replies to point to {options.fakemail} not matching: {domain}")
                     nametodns["MX"]['*.*.*.*.*.*.*.*.*.*'] = fakemail
 
                 if fakealias:
                     nametodns["CNAME"][domain] = False
-                    log.info(f"Cooking CNAME replies to point to {options.fakealias} not matching: {domain}")
+                    log.info("Cooking CNAME replies to point to {options.fakealias} not matching: {domain}")
                     nametodns["CNAME"]['*.*.*.*.*.*.*.*.*.*'] = fakealias
 
                 if fakens:
                     nametodns["NS"][domain] = False
-                    log.info(f"Cooking NS replies to point to {options.fakens} not matching: {domain}")
+                    log.info("Cooking NS replies to point to {options.fakens} not matching: {domain}")
                     nametodns["NS"]['*.*.*.*.*.*.*.*.*.*'] = fakealias
 
         else:
@@ -602,23 +602,23 @@ if __name__ == "__main__":
 
             if fakeip:
                 nametodns["A"]['*.*.*.*.*.*.*.*.*.*'] = fakeip
-                log.info(f"Cooking all A replies to point to {fakeip}")
+                log.info("Cooking all A replies to point to {fakeip}")
 
             if fakeipv6:
                 nametodns["AAAA"]['*.*.*.*.*.*.*.*.*.*'] = fakeipv6
-                log.info(f"Cooking all AAAA replies to point to {fakeipv6}")
+                log.info("Cooking all AAAA replies to point to {fakeipv6}")
 
             if fakemail:
                 nametodns["MX"]['*.*.*.*.*.*.*.*.*.*'] = fakemail
-                log.info(f"Cooking all MX replies to point to {fakemail}")
+                log.info("Cooking all MX replies to point to {fakemail}")
 
             if fakealias:
                 nametodns["CNAME"]['*.*.*.*.*.*.*.*.*.*'] = fakealias
-                log.info(f"Cooking all CNAME replies to point to {fakealias}")
+                log.info("Cooking all CNAME replies to point to {fakealias}")
 
             if fakens:
                 nametodns["NS"]['*.*.*.*.*.*.*.*.*.*'] = fakens
-                log.info(f"Cooking all NS replies to point to {fakens}")
+                log.info("Cooking all NS replies to point to {fakens}")
 
     # Proxy all DNS requests
     if not options.fakeip and not options.fakeipv6 and not options.fakemail and not options.fakealias and not options.fakens and not options.file:
